@@ -1,10 +1,10 @@
-#Requirements:
+# Requirements:
 - java
 - gradle (Possibly)
 
-#Run tests:
+# Run tests:
 
-If you don't have installed gradle, use `gradlew` instead of `gradle` 
+If you don't have installed gradle, use `gradlew` instead of `gradle`. Gradlew downloading gradle distribution from link `https\://services.gradle.org/distributions/gradle-4.0-bin.zip`
 - for run all tests with default baseUrl="https://api.kontakt.io/" and apiKey="KQvFHVLZxhYzMJfweBhQoZHDaAgBmVnP":
     - gradle test
 - for run all tests with other params:
