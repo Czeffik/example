@@ -1,0 +1,88 @@
+group 'com.trzewik.rest'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+
+ext{
+    gradleVer = '4.3'
+    groovyVer = '2.4.13'
+    spockVer = '1.1-groovy-2.4'
+    junitVer = '4.12'
+    restAssuredVer = '2.9.0'
+    jsonVer = '20180130'
+}
+repositories {
+    //here we can add other repos: mavenLocal(), maven{url 'https://example.url.pl'}
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVer
+    compile group: 'org.json', name: 'json', version: jsonVer
+    compile group: 'com.jayway.restassured', name: 'rest-assured', version: restAssuredVer
+    testCompile group: 'junit', name: 'junit', version: junitVer
+    testCompile group: 'org.spockframework', name: 'spock-core', version: spockVer
+}
+
+//Method which returning systemProperties as map
+ext.gettingProperties = {->
+    if (project.hasProperty('baseUrl')) {
+        String baseUrl =  project.getProperty('baseUrl')
+        String apiKey
+        if (project.hasProperty('apiKey')){
+            apiKey = project.getProperty('apiKey')
+        }
+        else{
+            apiKey = 'KQvFHVLZxhYzMJfweBhQoZHDaAgBmVnP'
+        }
+        return [baseUrl, apiKey]
+    }
+    else {
+        return ['https://api.kontakt.io/', 'KQvFHVLZxhYzMJfweBhQoZHDaAgBmVnP']
+    }
+}
+
+
+//Method which print message with test result after test
+ext.printingTestResult = {desc, result->
+    if (result.resultType.toString() == 'SUCCESS') {
+        println "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
+    }
+    else{
+        println "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
+        println result.exception
+    }
+}
+
+//For all tasks with type 'Test' this will be done:
+tasks.withType(Test) {
+    def properties = gettingProperties()
+    println properties[0]
+    systemProperty 'baseUrl', properties[0]
+    systemProperty 'apiKey', properties[1]
+    afterTest { desc, result ->
+        printingTestResult(desc, result)
+    }
+    reports {
+        junitXml.enabled = true
+        html.enabled = true
+    }
+}
+
+
+task smoke(type: Test){
+    filter {
+        includeTestsMatching "*SmokeTest"
+    }
+
+}
+
+task regression(type: Test){
+    filter {
+        includeTestsMatching "*Regression"
+    }
+}
+
+task wrapper(type: Wrapper) {
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVer-all.zip"
+}
